@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Frontend & Programming Quiz</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f6f9;
+margin:0;
+padding:20px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h1{
+text-align:center;
+}
+
+.timer{
+font-size:18px;
+font-weight:bold;
+color:red;
+text-align:right;
+}
+
+.question-box{
+margin:20px 0;
+}
+
+.options label{
+display:block;
+margin:8px 0;
+}
+
+.nav-buttons{
+margin-top:20px;
+}
+
+button{
+padding:10px 18px;
+margin:5px;
+font-size:15px;
+border:none;
+background:#007bff;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:#0056b3;
+}
+
+.question-nav{
+margin-top:20px;
+display:grid;
+grid-template-columns:repeat(10,1fr);
+gap:5px;
+}
+
+.question-nav button{
+padding:8px;
+font-size:13px;
+background:#ddd;
+color:black;
+}
+
+.result{
+font-size:22px;
+font-weight:bold;
+text-align:center;
+margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Frontend + Programming Live Quiz</h1>
+
+<div class="timer">
+Time Left: <span id="time">20:00</span>
+</div>
+
+<div id="quiz"></div>
+
+<div class="nav-buttons">
+<button onclick="prevQuestion()">Previous</button>
+<button onclick="nextQuestion()">Next</button>
+<button onclick="submitQuiz()">Submit Quiz</button>
+</div>
+
+<div class="question-nav" id="questionNav"></div>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+const quizData=[
+{q:"HTML5 tag for figure caption?",o:["<caption>","<title>","<figcaption>","<ref>"],a:2},
+{q:"Placement of figcaption?",o:["First child","Last child","First or Last","Anywhere"],a:2},
+{q:"span tag statement?",o:["Block element","No visual effect","No closing tag","Width attribute"],a:1},
+{q:"Correct canvas syntax?",o:["canvas=canvas","size attribute","width height","plain canvas"],a:2},
+{q:"JS background threads?",o:["Event Loop","Web Workers","Shadow DOM","Service Workers"],a:1},
+{q:"Invalid doctype?",o:["<!DOCTYPE html>","<!doctype html>","<!DOCTYPE HTML>","<DOCTYPE html>"],a:3},
+{q:"Default display of div?",o:["inline","block","flex","grid"],a:1},
+{q:"inline-block display?",o:["stack","side by side","overlap","hidden"],a:1},
+{q:"Default display of <a>?",o:["inline","block","inline-block","flex"],a:0},
+{q:"Margins applied to span?",o:["All","Left & Right","Top & Bottom","None"],a:1},
+{q:"Which appears on top?",o:["box1","box2","both","depends"],a:1},
+{q:"Why z-index not working?",o:["flex only","needs position","block only","deprecated"],a:1},
+{q:"z-index behind others?",o:["0","-1","1","auto"],a:1},
+{q:"Closures useful for?",o:["Encapsulation","Private variables","Maintain state","All"],a:3},
+{q:"Closures access global scope?",o:["Yes","No","Only const","Only let"],a:0},
+{q:"JS increment output?",o:["0","1","undefined","error"],a:1},
+{q:"Example of closure?",o:["outer function","simple function","global function","all"],a:0},
+{q:"Stops bubbling & capturing?",o:["preventDefault","none","stopImmediatePropagation","return false"],a:2},
+{q:"Listener attached element?",o:["target","currentTarget","type","phase"],a:1},
+{q:"Propagation important?",o:["Styling","Control flow","HTML semantics","API"],a:1},
+{q:"Capturing phase?",o:["addEventListener()","true param","false param","capture"],a:1},
+{q:"useLayoutEffect vs useEffect?",o:["No diff","Sync vs Async","before paint","parallel"],a:1},
+{q:"Cleanup useEffect runs?",o:["Before mount","After render","Before unmount","once"],a:2},
+{q:"State hook?",o:["useState","useEffect","useContext","useReducer"],a:0},
+{q:"useMemo purpose?",o:["Cache function","Memo component","Memo values","Same as useEffect"],a:2},
+{q:"useEffect([],)?",o:["Every render","Once","Dependencies","Never"],a:1},
+{q:"Memoize function prop?",o:["useMemo","useReducer","useCallback","useRef"],a:2},
+{q:"useRef used for?",o:["DOM ref","rerender","global state","memoize"],a:0},
+{q:"Complex state hook?",o:["useContext","useState","useEffect","useReducer"],a:3},
+{q:"Access context value?",o:["useReducer","useMemo","useContext","useRef"],a:2},
+{q:"Context solves?",o:["local state","prop drilling","effects","performance"],a:1},
+{q:"Create context?",o:["React.createContext()","createContext()","useContext()","React.useContext()"],a:0},
+{q:"Provide context value?",o:["Consumer","Provider","useContext","Context"],a:1},
+{q:"Context value change?",o:["Provider rerender","Consumers rerender","nothing","app rerender"],a:1},
+{q:"If else logic?",o:["while","if then","loop","if else"],a:3},
+{q:"Prime number logic correct?",o:["1","2","3","4"],a:3},
+{q:"Max among three?",o:["1","2","3","4"],a:1},
+{q:"Loop final values?",o:["5,8","6,8","6,-2","5,-2"],a:1},
+{q:"Output snippet?",o:["Pass","Fail","PassFail","FailPass"],a:1},
+{q:"Primary key?",o:["NULL","unique","sorting","duplicate"],a:1},
+{q:"Partial dependency removed?",o:["1NF","2NF","3NF","BCNF"],a:1},
+{q:"Remove rows without logging?",o:["DELETE","DROP","TRUNCATE","REMOVE"],a:2},
+{q:"REST resource?",o:["table","method","URI","server"],a:2},
+{q:"Uniform interface?",o:["speed","consistency","SSR","auth"],a:1},
+{q:"REST caching?",o:["client server","caching","stateless","code"],a:1},
+{q:"CSS flex axis?",o:["main","cross","grid","block"],a:0},
+{q:"React virtual DOM?",o:["copy DOM","optimized DOM","server DOM","browser DOM"],a:1},
+{q:"JS typeof null?",o:["null","object","undefined","number"],a:1},
+{q:"Promise state?",o:["pending","resolved","rejected","all"],a:3},
+{q:"Arrow function 특징?",o:["no this","short syntax","lexical this","all"],a:3}
+]
+
+let currentQuestion=0
+let userAnswers=new Array(quizData.length)
+
+function loadQuestion(){
+let q=quizData[currentQuestion]
+let html=`<div class="question-box">
+<h3>Question ${currentQuestion+1} / ${quizData.length}</h3>
+<p>${q.q}</p>
+<div class="options">`
+q.o.forEach((opt,i)=>{
+html+=`<label>
+<input type="radio" name="option" value="${i}" 
+${userAnswers[currentQuestion]==i?"checked":""}
+onclick="saveAnswer(${i})">
+${opt}
+</label>`
+})
+html+=`</div></div>`
+document.getElementById("quiz").innerHTML=html
+}
+
+function saveAnswer(i){
+userAnswers[currentQuestion]=i
+}
+
+function nextQuestion(){
+if(currentQuestion<quizData.length-1){
+currentQuestion++
+loadQuestion()
+}
+}
+
+function prevQuestion(){
+if(currentQuestion>0){
+currentQuestion--
+loadQuestion()
+}
+}
+
+function submitQuiz(){
+let score=0
+quizData.forEach((q,i)=>{
+if(userAnswers[i]==q.a){
+score++
+}
+})
+document.getElementById("result").innerHTML="Your Score: "+score+" / "+quizData.length
+}
+
+function createNav(){
+let nav=document.getElementById("questionNav")
+quizData.forEach((q,i)=>{
+let btn=document.createElement("button")
+btn.innerText=i+1
+btn.onclick=()=>{
+currentQuestion=i
+loadQuestion()
+}
+nav.appendChild(btn)
+})
+}
+
+let time=1200
+let timer=setInterval(()=>{
+let m=Math.floor(time/60)
+let s=time%60
+document.getElementById("time").innerHTML=m+":"+(s<10?"0":"")+s
+time--
+if(time<0){
+clearInterval(timer)
+submitQuiz()
+}
+},1000)
+
+createNav()
+loadQuestion()
+
+</script>
+</body>
+</html>
